@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/common-name: VAR_GRAFANA_HOST_REPLACER
+    cert-manager.io/subject-organizations: VAR_CERT_ORGANIZATION_REPLACER
+    cert-manager.io/subject-countries: VAR_CERT_COUNTRY_REPLACER
+    cert-manager.io/subject-localities: VAR_CERT_CITY_REPLACER
+    cert-manager.io/subject-provinces: VAR_CERT_PROVINCE_REPLACER
+    traefik.ingress.kubernetes.io/frontend-entry-points: https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+  name: grafana-ingress
+  namespace: monitoring
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: VAR_GRAFANA_HOST_REPLACER
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-grafana
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - VAR_GRAFANA_HOST_REPLACER
+    secretName: VAR_GRAFANA_CERT_SECRET_REPLACER-tls
+
