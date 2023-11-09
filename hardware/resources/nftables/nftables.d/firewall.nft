@@ -1,0 +1,109 @@
+#!/usr/sbin/nft -f
+
+table inet firewall {
+	chain input {
+		type filter hook input priority 0; policy drop
+
+		# Permit inbound traffic to loopback interface (localhost)
+		iif lo accept
+
+		# Permit established and related connections
+		ct state new,established,related counter accept
+
+		# Drop traffic with invalid connection state
+		ct state invalid counter drop
+
+		# Permit IPv4 ping/ping responses but rate limit to 2000 PPS
+		ip protocol icmp icmp type { echo-reply, echo-request } \
+			limit rate 2000/second \
+			counter accept
+
+		# Permit all other inbound IPv4 ICMP
+		ip protocol icmp counter accept
+
+		# Permit IPv6 ping/ping responses but rate limit to 2000 PPS
+		icmpv6 type { echo-reply, echo-request } \
+			limit rate 2000/second \
+			counter accept
+
+		# Permit all other inbound IPv6 ICMP
+		meta l4proto { icmpv6 } counter accept
+
+		# Permit inbound SSH connections
+		tcp dport ssh ct state new counter accept
+
+		# Permit inbound HTTP and HTTPS connections
+		tcp dport {80, 443} ct state new counter accept
+
+		# Permit inbound API Kubernetes connections
+		# 6443: Kubernetes API server
+		# 2379: etcd server client API
+		# 2380: etcd server peer API
+		# 10250: Kubelet metrics
+		tcp dport {6443, 2379, 2380, 10250} ct state new counter accept
+		# 8472: Flannel IPV4
+		# 51820-51821: Flannel IPV6
+		udp dport {8472, 51820, 51821} ct state new counter accept
+
+		# Count the unmatched traffic
+		counter
+	}
+	chain forward {
+		type filter hook forward priority 0; policy drop
+
+		# Permit inbound traffic to loopback interface (localhost)
+		iif lo accept
+
+		# Permit established and related connections
+		ct state new,established,related counter accept
+
+		# Drop traffic with invalid connection state
+		ct state invalid counter drop
+
+		# Permit IPv4 ping/ping responses but rate limit to 2000 PPS
+		ip protocol icmp icmp type { echo-reply, echo-request } \
+			limit rate 2000/second \
+			counter accept
+
+		# Permit all other inbound IPv4 ICMP
+		ip protocol icmp counter accept
+
+		# Permit IPv6 ping/ping responses but rate limit to 2000 PPS
+		icmpv6 type { echo-reply, echo-request } \
+			limit rate 2000/second \
+			counter accept
+
+		# Permit all other inbound IPv6 ICMP
+		meta l4proto { icmpv6 } counter accept
+
+		# Autoriser le trafic HTTP/HTTPS sortant
+		tcp dport {80, 443} ct state new,established accept
+
+		# Permit inbound API Kubernetes connections
+		# 6443: Kubernetes API server
+		# 2379: etcd server client API
+		# 2380: etcd server peer API
+		# 10250: Kubelet metrics
+		tcp dport {6443, 2379, 2380, 10250} ct state new counter accept
+		# 8472: Flannel IPV4
+		# 51820-51821: Flannel IPV6
+		udp dport {8472, 51820, 51821} ct state new counter accept
+
+		# Autoriser le trafic DNS sortant
+		udp dport 53 ct state new,established accept
+		tcp dport 53 ct state new,established accept
+
+		# Autoriser le trafic NTP sortant
+		udp dport 123 ct state new,established accept
+
+		# Count the unmatched traffic
+		counter
+	}
+	chain output {
+		type filter hook output priority 0; policy accept
+
+		# Count all outbound traffic
+		counter
+	}
+}
+

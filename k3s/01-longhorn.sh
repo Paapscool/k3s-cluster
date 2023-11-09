@@ -16,7 +16,7 @@ helm install longhorn longhorn/longhorn --namespace longhorn-system \
 	--set csi.snapshotterReplicaCount=1 \
 	--set longhornUI.replicas=1 \
 	--set defaultSettings.createDefaultDiskLabeledNodes=true \
-	--set defaultSettings.defaultDataPath=/database \
+	--set defaultSettings.defaultDataPath=/data \
 	--set defaultSettings.defaultReplicaCount=1 \
 	--set defaultSettings.replicaSoftAntiAffinity=true \
 	--set defaultSettings.defaultDataLocality=best-effort \
@@ -29,3 +29,4 @@ helm install longhorn longhorn/longhorn --namespace longhorn-system \
 # change default storage class
 sudo cp /var/lib/rancher/k3s/server/manifests/local-storage.yaml /var/lib/rancher/k3s/server/manifests/custom-local-storage.yaml
 sudo sed -i -e "s/storageclass.kubernetes.io\/is-default-class: \"true\"/storageclass.kubernetes.io\/is-default-class: \"false\"/g" /var/lib/rancher/k3s/server/manifests/custom-local-storage.yaml
+

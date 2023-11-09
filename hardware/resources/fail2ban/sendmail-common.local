@@ -1,0 +1,9 @@
+# Sendmail overriding configuration file
+# Should place in /etc/fail2ban/action.d/sendmail-common.local
+#
+
+[Definition]
+
+# Disable email notifications of jails stopping or starting
+actionstart =
+actionstop =

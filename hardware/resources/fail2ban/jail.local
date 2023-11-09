@@ -1,0 +1,134 @@
+# Jail overriding configuration file
+# Should place in /etc/fail2ban/jail.local
+#
+# WARNING: heavily refactored in 0.9.0 release.  Please review and
+#          customize settings for your setup.
+#
+
+[DEFAULT]
+
+#
+# MISCELLANEOUS OPTIONS
+#
+
+# "bantime.increment" allows to use database for searching of previously banned ip's to increase a
+# default ban time using special formula, default it is banTime * 1, 2, 4, 8, 16, 32...
+bantime.increment = true
+
+# "bantime.maxtime" is the max number of seconds using the ban time can reach (doesn't grow further)
+bantime.maxtime = 30d
+
+# --------------------
+
+# "ignoreself" specifies whether the local resp. own IP addresses should be ignored
+# (default is true). Fail2ban will not ban a host which matches such addresses.
+ignoreself = true
+
+# "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
+# will not ban a host which matches an address in this list. Several addresses
+# can be defined using space (and/or comma) separator.
+#ignoreip = 127.0.0.1/8 ::1
+
+# "bantime" is the number of seconds that a host is banned.
+bantime  = 10m
+
+# A host is banned if it has generated "maxretry" during the last "findtime"
+# seconds.
+findtime  = 10m
+
+# "maxretry" is the number of failures before a host get banned.
+maxretry = 5
+
+#
+# ACTIONS
+#
+
+# Some options used for actions
+
+# Destination email address used solely for the interpolations in
+# jail.{conf,local,d/*} configuration files.
+destemail =
+
+# Sender email address used solely for some actions
+sender =
+
+# Specify chain where jumps would need to be added in ban-actions expecting parameter chain
+chain = input
+
+# Default banning action (e.g. iptables, iptables-new,
+# iptables-multiport, shorewall, etc) It is used to define
+# action_* variables. Can be overridden globally or per
+# section within jail.local file
+banaction = nftables-multiport
+banaction_allports = nftables-allports
+
+#
+# JAILS
+#
+
+#
+# SSH servers
+#
+
+[sshd]
+enabled = true
+mode = aggressive
+filter = sshd
+maxretry = 4
+backend = systemd
+
+#
+# HTTP servers
+#
+
+#
+# Webmail and groupware servers
+#
+
+#
+# Web Applications
+#
+#
+
+#
+# HTTP Proxy servers
+#
+#
+
+#
+# FTP servers
+#
+
+#
+# Mail servers
+#
+
+#
+# Mail servers authenticators: might be used for smtp,ftp,imap servers, so
+# all relevant ports get banned
+#
+
+#
+#
+# DNS servers
+#
+
+#
+# Miscellaneous
+#
+
+# Jail for more extended banning of persistent abusers
+# !!! WARNINGS !!!
+# 1. Make sure that your loglevel specified in fail2ban.conf/.local
+#    is not at DEBUG level -- which might then cause fail2ban to fall into
+#    an infinite loop constantly feeding itself with non-informative lines
+# 2. Increase dbpurgeage defined in fail2ban.conf to e.g. 648000 (7.5 days)
+#    to maintain entries for failed logins for sufficient amount of time
+[recidive]
+enabled = true
+banaction = %(banaction_allports)s
+bantime  = 1w
+findtime = 2d
+
+# Generic filter for PAM. Has to be used with action which bans all
+# ports such as iptables-allports, shorewall

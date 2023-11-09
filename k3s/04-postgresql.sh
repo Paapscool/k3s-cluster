@@ -14,12 +14,12 @@ REGISTRY_NAME=registry-1.docker.io
 REPOSITORY_NAME=bitnamicharts
 helm install postgresql oci://$REGISTRY_NAME/$REPOSITORY_NAME/postgresql --namespace database \
 	--set global.storageClass=longhorn \
-	--set postgresqlDataDir=/database/postgresql/data \
-	--set primary.persistence.mountPath=/database/postgresql \
+	--set postgresqlDataDir=/postgresql/data \
+	--set primary.persistence.mountPath=/postgresql \
 	--set primary.persistentVolumeClaimRetentionPolicy.enabled=true \
 	--set primary.hostNetwork=true \
 	--set primary.labels.app=postgresql \
 	--set primary.labels.name=postgresql \
 	--set backup.enabled=true \
-	--set backup.cronjob.storage.mountPath=/database/backup/pgdump \
+	--set backup.cronjob.storage.mountPath=/postgresql/pgdump \
 	--set auth.postgresPassword=$BUILD_USER_PASSWORD

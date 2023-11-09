@@ -12,15 +12,13 @@ Here, you will find all things i was need to build my infrastructure. All instal
 
 ## Setup Hardwares
 
--- IN PROGRESS --
-
-Configure your hardware to install kube node (main or secondary) depends on your needs.
+Configure your hardware to host a kube node (main or secondary) depends on your needs.
 
 Go to [Hardware documentation](./hardware/README.md)
 
 ## Setup Nodes
 
-Install and configure your nodes with k3s.
+Install and configure your k3s nodes.
 
 Go to [K3S documentation](./k3s/README.md)
 

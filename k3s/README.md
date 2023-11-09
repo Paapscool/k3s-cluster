@@ -8,7 +8,7 @@ Keep in mind, this is an exploration project, for deploy my applications, improv
 
 Target usage: Production ready
 
-## Prerequise
+## Pre-requisites
 
 To run scripts, you need to have a debian server installed with ssh access. If you start from scratch, you can read the [hardware section](../hardware/README.md) to install your first server.
 
@@ -30,7 +30,7 @@ Details installation:
 - Helm
 - Cert-manager for generate and certifiate ssl connections
 - prometeus-community-stack for monitoring (with grafana and loki)
-- longhorn to have a persistent storage on a empty and specific disk in `/database` path
+- longhorn to have a persistent storage on a empty and specific disk in `/data` path
 - postgresql for database
 
 ## Install
@@ -272,7 +272,7 @@ If no disk detected, you need to configure it manually:
 - right on the node, select the Operation option and 'Edit node and disks'
 - Add minimal Manager CPU Request to `1m`
 - Name your disk
-- Select the path (in the script case: `/database`)
+- Select the path (in the script case: `/data`)
 - Select Storage Reserved to `0`
 - Turn on Scheduling with `Enable`
 - Save and quit.
