@@ -8,6 +8,26 @@ Keep in mind, this is an exploration project, for deploy my applications, improv
 
 Target usage: Production ready
 
+## Table of contents
+
+- [K3S](#k3s)
+  - [Table of contents](#table-of-contents)
+  - [Pre-requisites](#pre-requisites)
+  - [What does the script inside](#what-does-the-script-inside)
+  - [Install](#install)
+  - [Uninstall](#uninstall)
+  - [Complementary informations](#complementary-informations)
+    - [K3S / Traefik](#k3s--traefik)
+    - [HELM](#helm)
+    - [CERT-MANAGER](#cert-manager)
+      - [How to declare new ingress with ssl certificate](#how-to-declare-new-ingress-with-ssl-certificate)
+    - [PROMETHEUS / GRAFANA](#prometheus--grafana)
+    - [POSTGRESQL](#postgresql)
+      - [How use secret for your deployment](#how-use-secret-for-your-deployment)
+    - [LONGHORN](#longhorn)
+    - [Service Account](#service-account)
+  - [Source guide](#source-guide)
+
 ## Pre-requisites
 
 To run scripts, you need to have a debian server installed with ssh access. If you start from scratch, you can read the [hardware section](../hardware/README.md) to install your first server.
@@ -281,6 +301,23 @@ Sometimes, volumes stay in detached state. You can try to attach it manually dir
 
 - Select the volume
 - right on the volume, select the Operation option and 'Attach volume'
+
+### Service Account
+
+The utils folder contains a script to create a new service account with a new namespace and a new role binding.
+
+By default, the resources are limited to a basic deployment from a cd pipeline, but you can change the role binding in the script in the `$HOME/utils/kubeconfig/account.yaml`.
+
+``` bash
+# Note if the namespace doesn't exist, it's created
+<$ $HOME/utils/service_account.sh <namespace> <service-account-name>
+```
+
+Then, to retrieve the token for the service account, you can use the following command:
+
+``` bash
+sudo kubectl get secret $SERVICE_ACCOUNT_NAME-token -o yaml -n $NAMESPACE
+```
 
 ## Source guide
 
