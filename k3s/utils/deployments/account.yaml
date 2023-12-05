@@ -4,6 +4,14 @@ metadata:
   name: VAR_NAMESPACE_REPLACER
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: VAR_SERVICE_ACCOUNT_NAME_REPLACER
+  namespace: VAR_NAMESPACE_REPLACER
+secrets:
+  - name: VAR_SERVICE_ACCOUNT_NAME_REPLACER-token
+---
+apiVersion: v1
 kind: Secret
 type: kubernetes.io/service-account-token
 metadata:
@@ -11,14 +19,6 @@ metadata:
   namespace: VAR_NAMESPACE_REPLACER
   annotations:
     kubernetes.io/service-account.name: VAR_SERVICE_ACCOUNT_NAME_REPLACER
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: VAR_SERVICE_ACCOUNT_NAME_REPLACER
-  namespace: VAR_NAMESPACE_REPLACER
-secrets:
-  - name: VAR_SERVICE_ACCOUNT_NAME_REPLACER-token
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -29,6 +29,7 @@ rules:
       - ''
       - apps
       - networking.k8s.io
+      - batch
     resources:
       - namespaces
       - deployments

@@ -25,7 +25,8 @@ Target usage: Production ready
     - [POSTGRESQL](#postgresql)
       - [How use secret for your deployment](#how-use-secret-for-your-deployment)
     - [LONGHORN](#longhorn)
-    - [Service Account](#service-account)
+      - [Uninstall longhorn](#uninstall-longhorn)
+    - [SERVICE ACCOUNT](#service-account)
   - [Source guide](#source-guide)
 
 ## Pre-requisites
@@ -105,7 +106,7 @@ For run the uninstallation, go to /tmp/k3s folder and run the following command:
 
 ``` bash
 # remove all components installed by the scripts
-./cleaner.sh
+./uninstaller.sh
 ```
 
 ## Complementary informations
@@ -257,7 +258,12 @@ kubectl create secret generic <nom-du-secret> --from-literal=username=$(echo -n 
 Instead of, you could use the script to create a new user, database and namespaced secret:
 
 ``` bash
-~/utils/postgresql_new_credentials.sh namespace database_name user_name
+# opt1: namespace to store the associated kube secret
+# opt2: database name to connect the user
+# opt3: postgres user name
+# opt4: if true, the user is created with all privilege on the database, else only the connect privilege is granted
+# opt5: if true, the database is created, else only the user is created and supposed to connect to an existing database
+~/utils/postgresql_new_credentials.sh namespace database_name user_name true true
 ```
 
 Finaly, if you need to create a pg client just to use psql command, use directly the following command:
@@ -302,7 +308,16 @@ Sometimes, volumes stay in detached state. You can try to attach it manually dir
 - Select the volume
 - right on the volume, select the Operation option and 'Attach volume'
 
-### Service Account
+#### Uninstall longhorn
+
+``` bash
+# edit the settings to set the deleting flag at 'true'
+sudo kubectl -n longhorn-system edit settings.longhorn.io deleting-confirmation-flag
+# delete the release
+helm uninstall longhorn -n longhorn-system
+```
+
+### SERVICE ACCOUNT
 
 The utils folder contains a script to create a new service account with a new namespace and a new role binding.
 
@@ -310,7 +325,9 @@ By default, the resources are limited to a basic deployment from a cd pipeline, 
 
 ``` bash
 # Note if the namespace doesn't exist, it's created
-<$ $HOME/utils/service_account.sh <namespace> <service-account-name>
+# Script do not support to be run from another folder
+<$ cd $HOME/utils
+<$ ./service_account.sh <namespace> <service-account-name>
 ```
 
 Then, to retrieve the token for the service account, you can use the following command:

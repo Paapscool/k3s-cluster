@@ -9,6 +9,8 @@ read -s -p "Set your postgresql user password: " BUILD_USER_PASSWORD
 sudo kubectl create ns database
 sudo kubectl config set-context --current --namespace=database
 
+sudo kubectl apply -f kubeconfig/resource-quota.yaml --namespace database
+
 # chart helm values: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
 REGISTRY_NAME=registry-1.docker.io
 REPOSITORY_NAME=bitnamicharts

@@ -48,6 +48,9 @@ sed -i 's/'"$REPLACE_EMAIL"'/'"$EMAIL"'/g' ./$FOLDER_KUBECONFIG/cluster-issuer.y
 # move utils folder
 mv utils ~/utils
 
+# prepare os extra configuration
+sudo timedatectl set-timezone Europe/Paris
+
 # run scripts
 ./00-kube-install.sh
 

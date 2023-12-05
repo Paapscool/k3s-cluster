@@ -47,7 +47,7 @@ else
 fi
 
 ## install debian
-debootstrap --arch adm64 $HARDWARE_DEBIAN_VERSION /mnt $HARDWARE_DEBIAN_REPOSITORY
+debootstrap --arch amd64 $HARDWARE_DEBIAN_VERSION /mnt $HARDWARE_DEBIAN_REPOSITORY
 
 ## mount system
 mount -v --bind /dev /mnt/dev
@@ -74,3 +74,11 @@ cp -r resources /mnt/tmp/resources
 echo "/tmp/internal_scripts/entrypoint.sh \
 	$ENUM_TARGET \
 	$USER_PASSWORD" | chroot /mnt /bin/bash
+
+./partition_unmounter.sh $ENUM_TARGET
+
+## remove files
+if [ "$(echo "$HARDWARE_REMOVER" | tr '[:upper:]' '[:lower:]')" = "yes" ]; then
+	cd /tmp
+	sudo rm -rf /tmp/hardware
+fi

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source ../resources/config.sh
+RESOURCE_PATH=$1
+
+source $RESOURCE_PATH/config.sh
 
 ## install needed packages
 apt install -y \
@@ -11,12 +13,12 @@ apt install -y \
 	cloud-init \
 	linux-image-cloud-amd64
 
-mv ../resources/fstab /etc/fstab
+mv $RESOURCE_PATH/fstab /etc/fstab
 
 # install and configure grub
 grub-install /dev/$HARDWARE_DISK_NAME
 update-grub
-sudo grub-mkconfig -o /boot/grub/grub.cfg
+grub-mkconfig -o /boot/grub/grub.cfg
 
 # make sure cloud-init will not change the hostname
-sudo sed -i 's/preserve_hostname: false/preserve_hostname: true/' /etc/cloud/cloud.cfg
+sed -i 's/preserve_hostname: false/preserve_hostname: true/' /etc/cloud/cloud.cfg

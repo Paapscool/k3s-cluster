@@ -8,32 +8,34 @@ USER_PASSWORD=$2
 ENUM_TARGET_VPS=0
 ENUM_TARGET_LOCAL=1
 
-source ../resources/config.sh
+RESOURCE_PATH=/tmp/resources
+source $RESOURCE_PATH/config.sh
 
 ## update system
 apt update
 apt upgrade -y
 
 apt install -y \
-	dialog \
 	apt-utils \
+	dialog \
 	locales \
 	sudo \
 	policycoreutils
+
+# debconf to noninteractive
+echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
 # configure locale
 sed -i 's/# C.UTF-8 UTF-8/C.UTF-8 UTF-8/' /etc/locale.gen
 sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 
-# configure timezone
-sudo timedatectl set-timezone Europe/Paris
-
 ## configure bootloaders
+INTERNAL_SCRIPTS_PATH=/tmp/internal_scripts
 if [ "$ENUM_TARGET" = "$ENUM_TARGET_VPS" ]; then
-	./install_vps_bootloader.sh
+	$INTERNAL_SCRIPTS_PATH/install_vps_bootloader.sh $RESOURCE_PATH
 else
-	./install_local_bootloader.sh
+	$INTERNAL_SCRIPTS_PATH/install_local_bootloader.sh $RESOURCE_PATH
 fi
 
 ## Install tools packages
@@ -84,7 +86,7 @@ echo "" >> /etc/hosts
 # setup fail2ban
 mkdir /etc/systemd/system/fail2ban.service.d
 
-SOURCE_FAIL2BAN_PATH=../resources/fail2ban
+SOURCE_FAIL2BAN_PATH=$RESOURCE_PATH/fail2ban
 mv $SOURCE_FAIL2BAN_PATH/fail2ban.local /etc/fail2ban/fail2ban.local
 mv $SOURCE_FAIL2BAN_PATH/jail.local /etc/fail2ban/jail.local
 mv $SOURCE_FAIL2BAN_PATH/nftables-common.local /etc/fail2ban/action.d/nftables-common.local
@@ -92,26 +94,26 @@ mv $SOURCE_FAIL2BAN_PATH/sendmail-common.local /etc/fail2ban/action.d/sendmail-c
 mv $SOURCE_FAIL2BAN_PATH/override.conf /etc/systemd/system/fail2ban.service.d/override.conf
 
 # setup nftables
-SOURCE_NFT_PATH=../resources/nftables
+SOURCE_NFT_PATH=$RESOURCE_PATH/nftables
 mv $SOURCE_NFT_PATH/nftables.conf /etc/nftables.conf
 mv $SOURCE_NFT_PATH/nftables.d /etc/nftables.d
 
 ## user configuration
 # create the new user
-sudo adduser $HARDWARE_USER_NAME --gecos "$HARDWARE_USER_FULL_NAME,RoomNumber,WorkPhone,HomePhone" --disabled-password
-echo "$HARDWARE_USER_NAME:`printf "%s" "$USER_PASSWORD" | base64 --decode`" | sudo chpasswd
+adduser $HARDWARE_USER_NAME --gecos "$HARDWARE_USER_FULL_NAME,RoomNumber,WorkPhone,HomePhone" --disabled-password
+echo "$HARDWARE_USER_NAME:`printf "%s" "$USER_PASSWORD" | base64 --decode`" | chpasswd
 
 # create new group
 groupadd $HARDWARE_USER_GROUP
 
 # attach group for the user
-usermod -aG root,sudo,adm,$HARDWARE_USER_GROUP
+usermod -aG root,sudo,adm,$HARDWARE_USER_GROUP $HARDWARE_USER_NAME
 
 ## Update ssh configuration
 # adding ssh key
 mkdir /home/$HARDWARE_USER_NAME/.ssh
 chmod 700 /home/$HARDWARE_USER_NAME/.ssh
-mv ../resources/authorized_keys /home/$HARDWARE_USER_NAME/.ssh/authorized_keys 
+mv $RESOURCE_PATH/authorized_keys /home/$HARDWARE_USER_NAME/.ssh/authorized_keys 
 chmod 600 /home/$HARDWARE_USER_NAME/.ssh/authorized_keys
 chown -R $HARDWARE_USER_NAME:$HARDWARE_USER_NAME /home/$HARDWARE_USER_NAME/.ssh
 

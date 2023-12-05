@@ -18,6 +18,14 @@ Additionnaly, you need to have a ssh key pair to setup the ssh connection with t
 <$ ssh-keygen -t ed25519 -C "<your-email>"
 ```
 
+/!\ If the ssh domain is already record in your known_hosts file, you need to remove it before generate a new one.
+
+```bash
+ssh-keygen -R "<your-private-key-name>"
+rm $HOME/.ssh/<your-private-key-name>
+rm $HOME/.ssh/<your-private-key-name>.pub
+```
+
 Too, you need to have:
 
 - a domain name and a DNS server to manage your domain name
@@ -34,6 +42,8 @@ From my tests, the minimal configuration for your server is:
 - 40 Go disk storage
 
 :warning: postgresql usage could increase the memory ram and cpu usage and could cause limitations with this configuration.
+
+:warning: from my tests, the k3s usage seems to have need 24 Go disk storage (without persistent data).
 
 ## What does the script inside
 
@@ -61,7 +71,7 @@ For run the installation, go to the hardware folder and run the following comman
   TARGET_NAME='<vps|local>' \
   RESCUE_SSH_HOST='<your-rescue-ssh-host>' \
   RESCUE_SSH_USER='<your-rescue-ssh-user>' \
-  RESCUE_SSH_PUBLIC_KEY_PATH='your-ssh-key-path' \
+  SERVER_SSH_PUBLIC_KEY_PATH='your-ssh-key-path' \
   make install
 ```
 
@@ -72,7 +82,7 @@ make install
 # prompt should ask you the needed informations
 ```
 
-In the twices cases, you need to ast to the prompt to provide the user password for the new installed server.
+In the twices cases, you need to ask to the prompt to provide the user password for the new installed server.
 
 After installation, you can connect to your server with the new user and the ssh key, Enjoy! :sunglasses:
 
