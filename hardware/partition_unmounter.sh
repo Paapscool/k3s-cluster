@@ -47,9 +47,3 @@ sudo umount /mnt/dev
 sudo umount /mnt/data
 sudo umount /mnt/boot/efi
 sudo umount /mnt
-
-## remove files
-if [ "$(echo "$HARDWARE_REMOVER" | tr '[:upper:]' '[:lower:]')" = "yes" ]; then
-	cd /tmp
-	sudo rm -rf /tmp/hardware
-fi

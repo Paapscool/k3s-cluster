@@ -1,0 +1,5 @@
+# configuration files
+.config_*.sh
+
+# log files
+.*.log

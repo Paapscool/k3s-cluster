@@ -5,6 +5,8 @@ read -s -p "Set your Grafana admin password: " GRAFANA_PASSWORD
 sudo kubectl create ns monitoring
 sudo kubectl config set-context --current --namespace=monitoring
 
+sudo kubectl apply -f kubeconfig/resource-quota.yaml --namespace monitoring
+
 ## prometheus and grafana installation
 # Chart helm values: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -13,11 +15,21 @@ helm install prometheus prometheus-community/kube-prometheus-stack --namespace m
 	--set grafana.adminPassword="$GRAFANA_PASSWORD" \
 	--set grafana.persistence.enabled=true \
 	--set grafana.persistence.size=4Gi \
-	--set grafana.defaultDashboardsTimezone=Europe/Paris
+	--set grafana.persistence.storageClassName=longhorn \
+	--set grafana.defaultDashboardsTimezone=Europe/Paris \
+	--set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName=longhorn \
+	--set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage=8Gi \
+	--set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]=ReadWriteOnce \
+	--set prometheus.prometheusSpec.retention=2d \
+	--set alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec.storageClassName=longhorn \
+	--set alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec.resources.requests.storage=4Gi \
+	--set alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec.accessModes[0]=ReadWriteOnce
 
 ## loki installation
 helm repo add grafana https://grafana.github.io/helm-charts
-helm upgrade --install loki grafana/loki-stack --namespace monitoring
+helm upgrade --install loki grafana/loki-stack --namespace monitoring \
+	--set backend.persistence.storageClass=longhorn \
+	--set backend.persistence.size=4Gi
 
 (
 	echo "to retrieve the grafana admin password, run the following command:"

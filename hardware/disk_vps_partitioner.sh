@@ -242,7 +242,7 @@ echo $BOOT_TYPE_PART
 echo n
 echo $EFI_NUM_PART
 echo
-echo +$HARDWARE_VPS_EFI_SIZE
+echo +$HARDWARE_EFI_SIZE
 echo t
 echo $EFI_NUM_PART
 echo $EFI_TYPE_PART
@@ -251,7 +251,7 @@ echo $EFI_TYPE_PART
 echo n
 echo $FS_NUM_PART
 echo
-echo +$HARDWARE_VPS_FS_SIZE
+echo +$HARDWARE_FS_SIZE
 echo t
 echo $FS_NUM_PART
 echo $FS_TYPE_PART
@@ -260,10 +260,10 @@ echo $FS_TYPE_PART
 echo n
 echo $DATA_NUM_PART
 echo
-if [ "$(echo "$HARDWARE_VPS_DATA_SIZE" | tr '[:upper:]' '[:lower:]')" = "$PARTITION_SIZE_AUTO" ]; then
+if [ "$(echo "$HARDWARE_PERSISTENT_SIZE" | tr '[:upper:]' '[:lower:]')" = "$PARTITION_SIZE_AUTO" ]; then
 	echo
 else
-	echo +$HARDWARE_VPS_DATA_SIZE
+	echo +$HARDWARE_PERSISTENT_SIZE
 fi
 echo t
 echo $DATA_NUM_PART
@@ -275,12 +275,12 @@ echo w
 ) | sudo fdisk /dev/$HARDWARE_DISK_NAME
 
 ## Format partitions
-mkfs.ext4 -L boot /dev/$HARDWARE_DISK_NAME$BOOT_NUM_PART
-mkfs.vfat -F 32 /dev/$HARDWARE_DISK_NAME$EFI_NUM_PART
-mkfs.ext4 -L fs /dev/$HARDWARE_DISK_NAME$FS_NUM_PART
-mkfs.ext4 -L data /dev/$HARDWARE_DISK_NAME$DATA_NUM_PART
+yes n | sudo mkfs.ext4 -L boot /dev/$HARDWARE_DISK_NAME$BOOT_NUM_PART
+yes n | sudo mkfs.vfat -F 32 /dev/$HARDWARE_DISK_NAME$EFI_NUM_PART
+yes n | sudo mkfs.ext4 -L fs /dev/$HARDWARE_DISK_NAME$FS_NUM_PART
+yes n | sudo mkfs.ext4 -L data /dev/$HARDWARE_DISK_NAME$DATA_NUM_PART
 
-./partition_mounter.sh
+./partition_mounter.sh $HARDWARE_DISK_NAME $EFI_NUM_PART $FS_NUM_PART $DATA_NUM_PART
 
 ## Prepare partition configuration files
 EFI_UUID_PART=$(lsblk -o name,uuid | grep -w $HARDWARE_DISK_NAME$EFI_NUM_PART | sed -e 's/.*'$HARDWARE_DISK_NAME$EFI_NUM_PART' //g')

@@ -234,7 +234,7 @@ echo g
 echo n
 echo $EFI_NUM_PART
 echo
-echo +$HARDWARE_VPS_EFI_SIZE
+echo +$HARDWARE_EFI_SIZE
 echo t
 # no need to select the partition number because it's the last one
 echo $EFI_TYPE_PART
@@ -252,7 +252,7 @@ echo $SWAP_TYPE_PART
 echo n
 echo $FS_NUM_PART
 echo
-echo +$HARDWARE_VPS_FS_SIZE
+echo +$HARDWARE_FS_SIZE
 echo t
 echo $FS_NUM_PART
 echo $FS_TYPE_PART
@@ -261,10 +261,10 @@ echo $FS_TYPE_PART
 echo n
 echo $DATA_NUM_PART
 echo
-if [ "$(echo "$HARDWARE_VPS_DATA_SIZE" | tr '[:upper:]' '[:lower:]')" = "$PARTITION_SIZE_AUTO" ]; then
+if [ "$(echo "$HARDWARE_PERSISTENT_SIZE" | tr '[:upper:]' '[:lower:]')" = "$PARTITION_SIZE_AUTO" ]; then
 	echo
 else
-	echo +$HARDWARE_VPS_DATA_SIZE
+	echo +$HARDWARE_PERSISTENT_SIZE
 fi
 echo t
 echo $DATA_NUM_PART

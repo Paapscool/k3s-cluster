@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+spec:
+  hard:
+    requests.ephemeral-storage: 256Mi
+    limits.ephemeral-storage: 512Mi
