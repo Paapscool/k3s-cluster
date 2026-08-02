@@ -100,6 +100,20 @@ During the installation, the script prompt you for the following informations:
 - grafana password for the default admin user
 - postgresql password for the default admin user ('postgres')
 
+## Updating `~/utils` on an already-installed server
+
+`entrypoint.sh`'s `mv utils ~/utils` only ever runs once, during the
+initial install above — there is no other built-in way to push local
+changes made under `utils/` (`service-account.sh`,
+`postgresql_new_credentials.sh`, ...) to a server that's already running.
+Use this instead of installing again:
+
+``` bash
+SERVER_HOST='<server-host>' \
+SERVER_USER='<server-user>' \
+make update-utils
+```
+
 ## Uninstall
 
 For run the uninstallation, go to /tmp/k3s folder and run the following command:
