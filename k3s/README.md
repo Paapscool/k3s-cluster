@@ -319,21 +319,28 @@ helm uninstall longhorn -n longhorn-system
 
 ### SERVICE ACCOUNT
 
-The utils folder contains a script to create a new service account with a new namespace and a new role binding.
+The utils folder contains a script to create a new service account with a new namespace and a role binding scoped to that namespace only.
 
-By default, the resources are limited to a basic deployment from a cd pipeline, but you can change the role binding in the script in the `$HOME/utils/kubeconfig/account.yaml`.
+By default, the resources are limited to a basic deployment from a cd pipeline (see the shared `ci-deployer` ClusterRole in `$HOME/utils/deployments/account.yaml`), granted via a namespaced `RoleBinding` — not a `ClusterRoleBinding`. This is deliberate: several projects on this cluster reuse the same service-account name (e.g. `gitaction`), and a namespaced binding means they never collide with each other's grants and never gain rights over each other's namespaces.
 
 ``` bash
 # Note if the namespace doesn't exist, it's created
 # Script do not support to be run from another folder
 <$ cd $HOME/utils
-<$ ./service_account.sh <namespace> <service-account-name>
+<$ ./service-account.sh <namespace> <service-account-name>
 ```
 
 Then, to retrieve the token for the service account, you can use the following command:
 
 ``` bash
 sudo kubectl get secret $SERVICE_ACCOUNT_NAME-token -o yaml -n $NAMESPACE
+```
+
+If the same service account needs rights in an *additional* namespace (e.g. a CI pipeline that deploys to two namespaces), do **not** run `service-account.sh` again with the other namespace — that creates a second, unneeded `ServiceAccount`/`Secret` pair. Instead, grant the existing one a `RoleBinding` in the new namespace:
+
+``` bash
+<$ cd $HOME/utils
+<$ ./bind-service-account.sh <target-namespace> <namespace-the-service-account-lives-in> <service-account-name>
 ```
 
 ## Source guide

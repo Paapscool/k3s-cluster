@@ -20,10 +20,15 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: VAR_SERVICE_ACCOUNT_NAME_REPLACER
 ---
+# Fixed, generic name shared across every project on this cluster: the
+# rules are identical every time, so re-applying it for a new project is
+# always a no-op ("unchanged"), never a naming collision. A ClusterRole is
+# only a rule-set definition, not a grant by itself — see the RoleBinding
+# below for what actually grants access, and to which namespace.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: VAR_SERVICE_ACCOUNT_NAME_REPLACER-clusterrole
+  name: ci-deployer
 rules:
   - apiGroups:
       - ''
@@ -49,15 +54,25 @@ rules:
       - update
       - watch
 ---
+# RoleBinding, not ClusterRoleBinding: referencing a ClusterRole from a
+# namespaced RoleBinding grants those rights only inside this binding's own
+# namespace, not cluster-wide. This is what lets two projects reuse the
+# same service-account name (e.g. "gitaction") without colliding on the
+# same object, and without one project's CI ever gaining rights over
+# another project's namespaces. To grant this same ServiceAccount rights in
+# an *additional* namespace, use bind-service-account.sh instead of running
+# this script again — that would create a second, unneeded
+# ServiceAccount/Secret rather than reusing this one.
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: VAR_SERVICE_ACCOUNT_NAME_REPLACER-binding
-subjects:
-- kind: ServiceAccount
-  name: VAR_SERVICE_ACCOUNT_NAME_REPLACER
   namespace: VAR_NAMESPACE_REPLACER
+subjects:
+  - kind: ServiceAccount
+    name: VAR_SERVICE_ACCOUNT_NAME_REPLACER
+    namespace: VAR_NAMESPACE_REPLACER
 roleRef:
   kind: ClusterRole
-  name: VAR_SERVICE_ACCOUNT_NAME_REPLACER-clusterrole
+  name: ci-deployer
   apiGroup: rbac.authorization.k8s.io

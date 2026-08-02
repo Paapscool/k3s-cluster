@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Creates a ServiceAccount + long-lived token Secret in NAMESPACE, and
+# grants it the shared "ci-deployer" ClusterRole scoped to that namespace
+# only (via a RoleBinding, not a ClusterRoleBinding). To grant this same
+# ServiceAccount rights in another namespace too, use
+# bind-service-account.sh instead of running this script again with a
+# different namespace — running it again here would create a second,
+# unneeded ServiceAccount/Secret pair.
+
 # Arguments
 NAMESPACE=$1
 SERVICE_ACCOUNT_NAME=$2

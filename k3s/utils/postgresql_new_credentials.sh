@@ -25,6 +25,8 @@ sudo kubectl run postgresql-client --rm --tty -i \
 	echo \"GRANT CONNECT ON DATABASE $DATABASE TO $USER_NAME;\"
 	if [ \"$ADMIN\" = \"true\" || \"$ADMIN\" = \"TRUE\" ]; then
 		echo \"GRANT ALL PRIVILEGES ON DATABASE $DATABASE TO $USER_NAME;\"
+		echo \"\c $DATABASE\"
+		echo \"GRANT ALL ON SCHEMA public TO $USER_NAME;\"
 	fi
 ) | psql --host postgresql -U postgres -p 5432"
 
